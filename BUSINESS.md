@@ -28,6 +28,8 @@ parts are fast, sharp, and more effective than their size suggests.
   parent review and release.
 - **Recipe:** an optional parent-side implementation exhibit that a child adopts
   only after the project owner explicitly selects it.
+- **Work mode:** the task boundary between repository maintenance, operational
+  execution, and read-only audit.
 
 ## Business flow
 
@@ -69,6 +71,8 @@ parts are fast, sharp, and more effective than their size suggests.
   user request or one compact question, then removes the bootstrap instruction.
 - Recipes are never runtime defaults, automatically pulled, or applied without
   the project owner's explicit choice.
+- Operational execution never inherits the maintenance commit cycle, and an
+  audit never silently becomes repair.
 
 ## Decisions and numbers
 
@@ -81,6 +85,7 @@ parts are fast, sharp, and more effective than their size suggests.
 | 1 stable command | real release invocation | Run exactly `make release`; provide the version only to its interactive prompt | A reusable command approval should not change with every release version | Encoding the version in the command causes recurring one-off approvals | release argument guard and copied-contract smoke check |
 | 1 | canonical home per rule | State a rule once and route to it elsewhere | Duplicate wording drifts and makes agents resolve avoidable conflicts | Rule edits must repair the canonical source and its routes | parent review and bootstrap smoke |
 | 1 | maximum bootstrap question | Ask once for the user, problem, and useful outcome only when the first request is insufficient | Avoids both invented product truth and a context-heavy onboarding interview | New-project bootstrap changes | marker assertions in bootstrap smoke |
+| 3 | work modes | Maintenance, operation, and audit have distinct authority and completion contracts | Prevent operational agents from editing rails and maintainers from inheriting product-run machinery | Every task must select the mode implied by its requested outcome | copied runtime smoke and mode-contract assertions |
 
 ## Module map
 
@@ -95,6 +100,7 @@ The kernel is small enough to need no `business/*` modules yet.
 | `tools/vibe-propose` | Structured child-to-parent feedback submission |
 | `templates/project-skeleton` | Minimal new-project bootstrap |
 | `recipes/MAKEFILE.md` | Optional owner-selected Make capability examples |
+| `recipes/AGENTIC_OPERATIONS.md` | Optional owner-selected operational workflow contract |
 
 ## Non-goals
 

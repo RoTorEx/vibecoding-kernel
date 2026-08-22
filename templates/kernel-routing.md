@@ -1,6 +1,7 @@
 This project uses committed local copies of the Vibecoding Kernel.
 
-- Always read `.vibe/kernel/OPERATING.md` before normal project work.
+- Always read `.vibe/kernel/OPERATING.md` and choose its maintenance, operation,
+  or audit mode before normal project work.
 - For version, tag, publish, or release work, also read
   `.vibe/kernel/RELEASE.md`.
 - For user corrections, instruction conflicts, reusable agent-workflow lessons,

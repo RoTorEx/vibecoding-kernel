@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added an explicit maintenance, operation, and audit mode contract so
+  repository commits, external workflow execution, and read-only diagnosis no
+  longer inherit one another's authority.
+- Added an optional agentic-operations recipe for bounded scope, queue
+  reconciliation, failure isolation, deterministic mechanics, human
+  intervention, and evidence-backed completion.
+
+### Changed
+
+- Limited the commit-and-push task cycle to maintenance work that changes
+  tracked repository state.
+- Hardened external work by treating retrieved content as data rather than
+  instructions and requiring authoritative read-back after sensitive mutation.
+
 
 ## [1.2.1] - 2026-08-22
 

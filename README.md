@@ -70,10 +70,11 @@ kernel contracts reach children without changing the sync implementation.
 
 ## Optional recipes
 
-`recipes/MAKEFILE.md` is a parent-side exhibit for implementing real Make
-capabilities. Recipes are never pulled or applied automatically. In a child,
-the agent names the relevant recipe and its local choices, then waits for the
-project owner's explicit approval before implementing it.
+`recipes/MAKEFILE.md` and `recipes/AGENTIC_OPERATIONS.md` are parent-side
+exhibits for implementing real capabilities. Recipes are never pulled or
+applied automatically. In a child, the agent names the relevant recipe and its
+local choices, then waits for the project owner's explicit approval before
+implementing it.
 
 ## Feedback loop
 

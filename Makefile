@@ -24,6 +24,7 @@ check-layout:
 	@test -f tools/release
 	@test -f tools/vibe-propose
 	@test -f recipes/MAKEFILE.md
+	@test -f recipes/AGENTIC_OPERATIONS.md
 	@test -f templates/kernel-routing.md
 	@test -f templates/kernel-make.mk
 	@test -f templates/project-skeleton/AGENTS.md
@@ -38,6 +39,10 @@ check-layout:
 	@test ! -e templates/project-skeleton/TASK.md
 	@test ! -e templates/project-skeleton/.githooks
 	@for file in core/*.md; do name="$$(basename "$$file")"; grep -Fq "$$name" templates/kernel-routing.md || { echo "ERROR: $$name is not routed." >&2; exit 1; }; done
+	@grep -Fq '## Work mode' core/OPERATING.md
+	@grep -Fq 'Use this cycle only when tracked repository state changes.' core/OPERATING.md
+	@grep -Fq 'Audit' core/OPERATING.md
+	@grep -Fq 'Operation' core/OPERATING.md
 
 check-agent-paths:
 	@python3 -c 'from pathlib import Path; import glob, re; text=Path("AGENTS.md").read_text(); refs={value for value in re.findall(r"`([^`]+)`", text) if "/" in value or value.endswith(".md") or value == "Makefile"}; optional={"AGENTS.local.md"}; missing=sorted(value for value in refs - optional if not glob.glob(value)); assert not missing, "missing AGENTS.md path(s): " + ", ".join(missing)'
@@ -94,6 +99,8 @@ smoke-new-project:
 	test -f "$$tmp/.vibe/kernel/RELEASE.md"; \
 	test -f "$$tmp/.vibe/kernel/EVOLUTION.md"; \
 	grep -Fq 'start exactly `make release`' "$$tmp/.vibe/kernel/RELEASE.md"; \
+	grep -Fq '## Work mode' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'Operation and audit' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	test "$$(cat "$$tmp/.vibe/kernel/VERSION")" = "$$(cat VERSION)"; \
 	git -C "$$tmp" check-ignore -q .vibe/KERNEL_SOURCE; \
 	grep -q "Always read.*OPERATING.md" "$$tmp/AGENTS.md"; \

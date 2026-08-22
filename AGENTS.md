@@ -24,6 +24,7 @@ This repository owns the shared operating rules and bootstrap for new projects.
   `templates/kernel-make.mk`.
 - Release-rule changes: read `core/RELEASE.md`.
 - Makefile recipe changes: read `recipes/MAKEFILE.md`.
+- Agentic-operation recipe changes: read `recipes/AGENTIC_OPERATIONS.md`.
 - Rule, routing, feedback, or kernel-evolution changes: read
   `core/EVOLUTION.md` and `FEEDBACK.md`.
 

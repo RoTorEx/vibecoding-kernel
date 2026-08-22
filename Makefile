@@ -1,9 +1,9 @@
-.PHONY: check check-layout smoke-new-project smoke-propose smoke-release new-project release release-push
+.PHONY: check check-layout check-agent-paths smoke-new-project smoke-propose smoke-release new-project release release-push
 
 TARGET := $(strip $(TARGET))
 NAME := $(strip $(NAME))
 
-check: check-layout
+check: check-layout check-agent-paths
 	@python3 -c "import os, py_compile, tempfile; py_compile.compile('tools/vibe-pull', cfile=os.path.join(tempfile.gettempdir(), 'vibe-pull.pyc'), doraise=True)"
 	@python3 -c "import os, py_compile, tempfile; py_compile.compile('tools/release', cfile=os.path.join(tempfile.gettempdir(), 'vibe-release.pyc'), doraise=True)"
 	@python3 -c "import os, py_compile, tempfile; py_compile.compile('tools/vibe-propose', cfile=os.path.join(tempfile.gettempdir(), 'vibe-propose.pyc'), doraise=True)"
@@ -38,6 +38,9 @@ check-layout:
 	@test ! -e templates/project-skeleton/TASK.md
 	@test ! -e templates/project-skeleton/.githooks
 	@for file in core/*.md; do name="$$(basename "$$file")"; grep -Fq "$$name" templates/kernel-routing.md || { echo "ERROR: $$name is not routed." >&2; exit 1; }; done
+
+check-agent-paths:
+	@python3 -c 'from pathlib import Path; import glob, re; text=Path("AGENTS.md").read_text(); refs={value for value in re.findall(r"`([^`]+)`", text) if "/" in value or value.endswith(".md") or value == "Makefile"}; optional={"AGENTS.local.md"}; missing=sorted(value for value in refs - optional if not glob.glob(value)); assert not missing, "missing AGENTS.md path(s): " + ", ".join(missing)'
 
 new-project:
 	@set -eu; \

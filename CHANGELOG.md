@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added a regression check that rejects missing local file and glob references
+  routed from the parent `AGENTS.md`.
+
 ### Changed
 
 - Moved machine-specific project-manager configuration from public agent rules

@@ -157,7 +157,7 @@ smoke-propose:
 	kernel="$$tmp/kernel"; child="$$tmp/child"; \
 	mkdir -p "$$kernel/tools" "$$child/.vibe"; \
 	cp tools/vibe-propose "$$kernel/tools/vibe-propose"; \
-	cp FEEDBACK.md "$$kernel/FEEDBACK.md"; \
+	printf '# Kernel Feedback\n\n## Active feedback\n\nNone.\n' > "$$kernel/FEEDBACK.md"; \
 	cp templates/project-skeleton/Makefile "$$child/Makefile"; \
 	cp templates/project-skeleton/AGENTS.md "$$child/AGENTS.md"; \
 	python3 tools/vibe-pull "$$child" >/dev/null; \
@@ -167,6 +167,7 @@ smoke-propose:
 	grep -Fq "### $$today — Useful title" "$$kernel/FEEDBACK.md"; \
 	grep -Fq -- '- Source project: `child`' "$$kernel/FEEDBACK.md"; \
 	grep -Fq -- '- Status: `proposed`' "$$kernel/FEEDBACK.md"; \
+	! grep -Fxq 'None.' "$$kernel/FEEDBACK.md"; \
 	echo "OK"
 
 smoke-release:

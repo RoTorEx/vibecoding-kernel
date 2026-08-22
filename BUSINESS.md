@@ -73,6 +73,9 @@ parts are fast, sharp, and more effective than their size suggests.
   the project owner's explicit choice.
 - Operational execution never inherits the maintenance commit cycle, and an
   audit never silently becomes repair.
+- A new or materially changed automated publisher gets the closest practical
+  non-release preflight before its first pushed tag and authoritative read-back
+  after publishing; unchanged recent success may serve as evidence.
 
 ## Decisions and numbers
 

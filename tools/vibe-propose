@@ -39,6 +39,14 @@ def ask(label: str) -> str:
 def append_proposal(feedback_path: Path, entry: str) -> None:
     with feedback_path.open("a+", encoding="utf-8") as handle:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        handle.seek(0)
+        content = handle.read()
+        empty_inbox = "## Active feedback\n\nNone.\n"
+        if empty_inbox in content:
+            content = content.replace(empty_inbox, "## Active feedback\n", 1)
+            handle.seek(0)
+            handle.truncate()
+            handle.write(content)
         handle.seek(0, os.SEEK_END)
         if handle.tell() > 0:
             handle.seek(handle.tell() - 1)

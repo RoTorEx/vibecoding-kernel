@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added a practical preflight and post-push verification contract for the first
+  tag using a new or materially changed automated publishing workflow.
+
+### Fixed
+
+- Made the first `vibe-propose` entry remove the empty-inbox `None.` sentinel.
 
 ## [1.3.0] - 2026-08-22
 

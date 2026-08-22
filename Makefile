@@ -43,6 +43,7 @@ check-layout:
 	@grep -Fq 'Use this cycle only when tracked repository state changes.' core/OPERATING.md
 	@grep -Fq 'Audit' core/OPERATING.md
 	@grep -Fq 'Operation' core/OPERATING.md
+	@grep -Fq 'remove owned temporary artifacts' core/OPERATING.md
 
 check-agent-paths:
 	@python3 -c 'from pathlib import Path; import glob, re; text=Path("AGENTS.md").read_text(); refs={value for value in re.findall(r"`([^`]+)`", text) if "/" in value or value.endswith(".md") or value == "Makefile"}; optional={"AGENTS.local.md"}; missing=sorted(value for value in refs - optional if not glob.glob(value)); assert not missing, "missing AGENTS.md path(s): " + ", ".join(missing)'

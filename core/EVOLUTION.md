@@ -125,6 +125,13 @@ history access, and history must never be copied into instructions wholesale.
 
 ## Adoption notes
 
+### 1.3.2
+
+- Clean up task-owned temporary files, directories, checkouts, build outputs,
+  browser profiles, and processes before the final response unless they are
+  still needed. Report every intentional retained artifact and its cleanup
+  condition; never delete pre-existing or unowned data.
+
 ### 1.3.1
 
 - Before the first tag pushed through a new or materially changed automated

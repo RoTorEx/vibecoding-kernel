@@ -76,6 +76,9 @@ parts are fast, sharp, and more effective than their size suggests.
 - A new or materially changed automated publisher gets the closest practical
   non-release preflight before its first pushed tag and authoritative read-back
   after publishing; unchanged recent success may serve as evidence.
+- Task-owned temporary artifacts have an explicit lifecycle and are removed
+  before completion unless the user or an active task still needs them;
+  pre-existing and unowned data is never swept up as collateral cleanup.
 
 ## Decisions and numbers
 

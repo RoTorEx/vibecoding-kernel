@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added a task-owned temporary-artifact lifecycle requiring unique paths,
+  attached cleanup, final reconciliation, and explicit reporting for anything
+  intentionally retained.
+
 
 ## [1.3.1] - 2026-08-22
 

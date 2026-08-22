@@ -143,3 +143,7 @@ implementation literals as business rules.
   authoritative result. Command success or a log entry alone is not proof.
 - Ask before weakening a documented boundary or performing a release.
 - Do not refactor product code merely to satisfy a shared convention.
+- Treat every temporary file, directory, checkout, build output, browser profile, and process as task-owned unless it pre-existed or was explicitly handed off.
+- Create task-owned temporary artifacts at unique system-temporary paths and attach cleanup with a trap, `finally`, or equivalent when practical.
+- Before the final response, stop owned processes and remove owned temporary artifacts no longer needed by the user or an active task, so repeated work cannot silently consume disk or preserve stale state.
+- Never delete pre-existing or unowned data. If an owned artifact must remain, report its exact path, purpose, current owner, and cleanup condition.

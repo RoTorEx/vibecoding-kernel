@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import fcntl
+import os
+import sys
+from datetime import date
+from pathlib import Path
+
+
+FIELDS = (
+    ("title", "Short title"),
+    ("trigger", "Trigger or problem"),
+    ("action", "Proposed action"),
+    ("reason", "Reason"),
+    ("evidence", "Evidence"),
+    ("scope", "Scope and exceptions"),
+    ("verification", "Verification"),
+    ("removal", "Removal condition"),
+)
+
+
+def fail(message: str) -> int:
+    print(f"ERROR: {message}", file=sys.stderr)
+    return 1
+
+
+def ask(label: str) -> str:
+    while True:
+        try:
+            value = input(f"{label}: ").strip()
+        except EOFError as exc:
+            raise ValueError("proposal input ended before all fields were provided") from exc
+        if value:
+            return value
+        print("A value is required.", file=sys.stderr)
+
+
+def append_proposal(feedback_path: Path, entry: str) -> None:
+    with feedback_path.open("a+", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() > 0:
+            handle.seek(handle.tell() - 1)
+            if handle.read(1) != "\n":
+                handle.write("\n")
+        handle.write(entry)
+        handle.flush()
+        os.fsync(handle.fileno())
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2:
+        return fail("usage: tools/vibe-propose <child-project-root>")
+
+    child_root = Path(argv[1]).resolve()
+    source_path = child_root / ".vibe" / "KERNEL_SOURCE"
+    if not source_path.is_file():
+        return fail(f"child project is missing .vibe/KERNEL_SOURCE: {child_root}")
+
+    source_lines = source_path.read_text(encoding="utf-8").splitlines()
+    if not source_lines or not source_lines[0].strip():
+        return fail(f"kernel source is empty: {source_path}")
+
+    kernel_root = Path(source_lines[0].strip()).expanduser()
+    if not kernel_root.is_absolute():
+        return fail(f"kernel source must be absolute: {kernel_root}")
+    kernel_root = kernel_root.resolve()
+    script_root = Path(__file__).resolve().parent.parent
+    if kernel_root != script_root:
+        return fail(f"this proposal tool does not belong to configured kernel: {kernel_root}")
+
+    feedback_path = kernel_root / "FEEDBACK.md"
+    if not feedback_path.is_file():
+        return fail(f"parent feedback inbox is missing: {feedback_path}")
+
+    print("Do not include secrets, raw conversations, or unnecessary private details.")
+    try:
+        values = {name: ask(label) for name, label in FIELDS}
+        entry = (
+            f"\n### {date.today().isoformat()} — {values['title']}\n\n"
+            f"- Source project: `{child_root.name}`\n"
+            f"- Trigger: {values['trigger']}\n"
+            f"- Proposed action: {values['action']}\n"
+            f"- Reason: {values['reason']}\n"
+            f"- Evidence: {values['evidence']}\n"
+            f"- Scope and exceptions: {values['scope']}\n"
+            f"- Verification: {values['verification']}\n"
+            f"- Removal condition: {values['removal']}\n"
+            "- Status: `proposed`\n"
+        )
+        append_proposal(feedback_path, entry)
+    except (OSError, ValueError) as exc:
+        return fail(str(exc))
+
+    print(f"Proposal appended to {feedback_path}")
+    print("The child task may continue; parent review and release are separate.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

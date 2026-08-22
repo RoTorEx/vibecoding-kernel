@@ -1,0 +1,14 @@
+This project uses committed local copies of the Vibecoding Kernel.
+
+- Always read `.vibe/kernel/OPERATING.md` before normal project work.
+- For version, tag, publish, or release work, also read
+  `.vibe/kernel/RELEASE.md`.
+- For user corrections, instruction conflicts, reusable agent-workflow lessons,
+  kernel proposals, or a newly pulled kernel version, also read
+  `.vibe/kernel/EVOLUTION.md`.
+- For product behavior or domain logic, read `BUSINESS.md` and only the relevant
+  module from `business/*`.
+- Do not edit `.vibe/kernel/*` manually or read the parent kernel during normal
+  work. Refresh the local copy with `make vibe-pull`.
+- When a reusable workflow improvement belongs in the parent, run
+  `make vibe-propose`; it appends a reviewable proposal without changing rules.

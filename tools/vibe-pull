@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import os
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+
+
+ROUTING_START = "<!-- VIBE:KERNEL_ROUTING_START -->"
+ROUTING_END = "<!-- VIBE:KERNEL_ROUTING_END -->"
+MAKE_START = "# VIBE:KERNEL_MAKE_START"
+MAKE_END = "# VIBE:KERNEL_MAKE_END"
+REQUIRED_RUNTIME_FILES = {"OPERATING.md", "RELEASE.md", "EVOLUTION.md"}
+
+
+def fail(message: str) -> int:
+    print(f"ERROR: {message}", file=sys.stderr)
+    return 1
+
+
+def atomic_write(path: Path, content: str) -> bool:
+    if path.exists() and path.read_text(encoding="utf-8") == content:
+        return False
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        delete=False,
+    ) as handle:
+        handle.write(content)
+        temporary = Path(handle.name)
+
+    os.replace(temporary, path)
+    return True
+
+
+def render_agents(existing: str, routing: str) -> str:
+    if existing.count(ROUTING_START) != 1 or existing.count(ROUTING_END) != 1:
+        raise ValueError("AGENTS.md must contain exactly one managed kernel-routing block")
+
+    start = existing.index(ROUTING_START) + len(ROUTING_START)
+    end = existing.index(ROUTING_END)
+    if end < start:
+        raise ValueError("AGENTS.md kernel-routing markers are out of order")
+
+    replacement = f"\n\n{routing.strip()}\n\n"
+    return existing[:start] + replacement + existing[end:]
+
+
+def render_makefile(existing: str, managed_targets: str) -> str:
+    start_count = existing.count(MAKE_START)
+    end_count = existing.count(MAKE_END)
+    block = f"{MAKE_START}\n\n{managed_targets.strip()}\n\n{MAKE_END}\n"
+
+    if start_count == 0 and end_count == 0:
+        if not existing:
+            return block
+        separator = "" if existing.endswith("\n\n") else "\n" if existing.endswith("\n") else "\n\n"
+        return existing + separator + block
+    if start_count != 1 or end_count != 1:
+        raise ValueError("Makefile must contain zero or one managed kernel-command block")
+
+    start = existing.index(MAKE_START)
+    end = existing.index(MAKE_END) + len(MAKE_END)
+    if end < start:
+        raise ValueError("Makefile kernel-command markers are out of order")
+    if end < len(existing) and existing[end] == "\n":
+        end += 1
+    return existing[:start] + block + existing[end:]
+
+
+def prune_runtime(runtime_dir: Path, allowed: set[str]) -> list[str]:
+    removed: list[str] = []
+    if not runtime_dir.exists():
+        return removed
+    if runtime_dir.is_symlink() or not runtime_dir.is_dir():
+        raise ValueError(f"managed runtime path is not a normal directory: {runtime_dir}")
+
+    for path in sorted(runtime_dir.iterdir(), key=lambda item: item.name):
+        if path.name in allowed and path.is_file() and not path.is_symlink():
+            continue
+        removed.append(path.name)
+        if path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+    return removed
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) != 2:
+        return fail("usage: tools/vibe-pull <child-project-root>")
+
+    kernel_root = Path(__file__).resolve().parent.parent
+    child_root = Path(argv[1]).resolve()
+    agents_path = child_root / "AGENTS.md"
+    makefile_path = child_root / "Makefile"
+    runtime_dir = child_root / ".vibe" / "kernel"
+
+    if not child_root.is_dir():
+        return fail(f"child project does not exist: {child_root}")
+    if not agents_path.is_file():
+        return fail(f"child project is missing AGENTS.md: {agents_path}")
+    if not makefile_path.is_file():
+        return fail(f"child project is missing Makefile: {makefile_path}")
+
+    core_dir = kernel_root / "core"
+    source_paths = {
+        path.name: path
+        for path in sorted(core_dir.glob("*.md"), key=lambda item: item.name)
+        if path.is_file()
+    }
+    missing_required = sorted(REQUIRED_RUNTIME_FILES - set(source_paths))
+    if missing_required:
+        return fail("kernel runtime is incomplete: " + ", ".join(missing_required))
+
+    source_paths["VERSION"] = kernel_root / "VERSION"
+    missing = [name for name, path in source_paths.items() if not path.is_file()]
+    if missing:
+        return fail("kernel runtime is incomplete: " + ", ".join(missing))
+
+    routing_path = kernel_root / "templates" / "kernel-routing.md"
+    if not routing_path.is_file():
+        return fail(f"kernel routing template is missing: {routing_path}")
+    make_routing_path = kernel_root / "templates" / "kernel-make.mk"
+    if not make_routing_path.is_file():
+        return fail(f"kernel Make template is missing: {make_routing_path}")
+
+    old_version_path = runtime_dir / "VERSION"
+    old_version = old_version_path.read_text(encoding="utf-8").strip() if old_version_path.is_file() else "none"
+    new_version = source_paths["VERSION"].read_text(encoding="utf-8").strip()
+
+    try:
+        updated_agents = render_agents(
+            agents_path.read_text(encoding="utf-8"),
+            routing_path.read_text(encoding="utf-8"),
+        )
+        updated_makefile = render_makefile(
+            makefile_path.read_text(encoding="utf-8"),
+            make_routing_path.read_text(encoding="utf-8"),
+        )
+        removed = prune_runtime(runtime_dir, set(source_paths))
+        changed: list[str] = []
+        for name, source in source_paths.items():
+            content = source.read_text(encoding="utf-8")
+            if atomic_write(runtime_dir / name, content):
+                changed.append(f".vibe/kernel/{name}")
+        if atomic_write(agents_path, updated_agents):
+            changed.append("AGENTS.md")
+        if atomic_write(makefile_path, updated_makefile):
+            changed.append("Makefile kernel-command block")
+    except (OSError, ValueError) as exc:
+        return fail(str(exc))
+
+    print(f"Kernel: {old_version} -> {new_version}")
+    for path in changed:
+        print(f"Updated: {path}")
+    for name in removed:
+        print(f"Removed obsolete runtime entry: .vibe/kernel/{name}")
+    if not changed and not removed:
+        print("Already current.")
+    elif old_version != new_version:
+        print("Next: read .vibe/kernel/EVOLUTION.md adoption notes and apply relevant changes before committing.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

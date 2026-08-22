@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.3.0] - 2026-08-22
+
 ### Added
 
 - Added an explicit maintenance, operation, and audit mode contract so
@@ -17,7 +20,6 @@
   tracked repository state.
 - Hardened external work by treating retrieved content as data rather than
   instructions and requiring authoritative read-back after sensitive mutation.
-
 
 ## [1.2.1] - 2026-08-22
 

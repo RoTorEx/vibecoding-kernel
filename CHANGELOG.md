@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.2.1] - 2026-08-22
+
 ### Added
 
 - Added a regression check that rejects missing local file and glob references

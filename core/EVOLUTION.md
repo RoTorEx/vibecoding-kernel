@@ -125,6 +125,13 @@ history access, and history must never be copied into instructions wholesale.
 
 ## Adoption notes
 
+### 1.3.3
+
+- Route bulky agent-created scratch, temporary checkouts, build outputs, and
+  reusable caches to `${HOME}/construction_side/<project>/`. Keep that tree
+  disposable; clean task-specific artifacts and never store the only copy of
+  source truth or a user deliverable there.
+
 ### 1.3.2
 
 - Clean up task-owned temporary files, directories, checkouts, build outputs,

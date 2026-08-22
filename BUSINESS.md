@@ -79,6 +79,9 @@ parts are fast, sharp, and more effective than their size suggests.
 - Task-owned temporary artifacts have an explicit lifecycle and are removed
   before completion unless the user or an active task still needs them;
   pre-existing and unowned data is never swept up as collateral cleanup.
+- `${HOME}/construction_side` is the single user-visible disposable root for
+  bulky agent scratch, temporary checkouts, build outputs, and reusable caches;
+  it never owns the only copy of durable source truth or user deliverables.
 
 ## Decisions and numbers
 
@@ -92,6 +95,7 @@ parts are fast, sharp, and more effective than their size suggests.
 | 1 | canonical home per rule | State a rule once and route to it elsewhere | Duplicate wording drifts and makes agents resolve avoidable conflicts | Rule edits must repair the canonical source and its routes | parent review and bootstrap smoke |
 | 1 | maximum bootstrap question | Ask once for the user, problem, and useful outcome only when the first request is insufficient | Avoids both invented product truth and a context-heavy onboarding interview | New-project bootstrap changes | marker assertions in bootstrap smoke |
 | 3 | work modes | Maintenance, operation, and audit have distinct authority and completion contracts | Prevent operational agents from editing rails and maintainers from inheriting product-run machinery | Every task must select the mode implied by its requested outcome | copied runtime smoke and mode-contract assertions |
+| 1 | disposable root | `${HOME}/construction_side` contains bulky reproducible scratch and build state | The owner can inspect or delete one obvious tree instead of hunting through hidden system paths | Child build and temporary-work paths must converge here when changed | copied runtime marker and child checks |
 
 ## Module map
 

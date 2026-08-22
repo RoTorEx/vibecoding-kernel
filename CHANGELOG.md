@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Standardized bulky agent-created scratch, temporary checkouts, build outputs,
+  and reusable caches under the disposable `${HOME}/construction_side` root.
+
 
 ## [1.3.2] - 2026-08-22
 

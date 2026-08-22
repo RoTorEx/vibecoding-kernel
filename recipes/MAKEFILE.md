@@ -30,6 +30,9 @@ Use for a CLI that the owner wants to run on the local machine.
   user-owned location, and verifies the installed command with `--version` or
   `--help`.
 - Re-running `install-local` safely replaces the previous local installation.
+- Route bulky build output and reusable build caches to
+  `$(HOME)/construction_side/<project>/`; keep the repository free of generated
+  build trees and keep `construction_side` safe to delete.
 
 Implementation shape; replace every angle-bracket value with real project
 commands before adding it to a child:

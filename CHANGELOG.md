@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.3.4] - 2026-08-24
+
 ### Changed
 
 - Added a universal outcome-boundary contract that prevents silent scope

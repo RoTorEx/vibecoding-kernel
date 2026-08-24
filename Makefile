@@ -43,6 +43,8 @@ check-layout:
 	@grep -Fq 'Use this cycle only when tracked repository state changes.' core/OPERATING.md
 	@grep -Fq 'Audit' core/OPERATING.md
 	@grep -Fq 'Operation' core/OPERATING.md
+	@grep -Fq 'named uncertainty' core/OPERATING.md
+	@grep -Fq 'Stop for approval before crossing' core/OPERATING.md
 	@grep -Fq 'remove owned temporary artifacts' core/OPERATING.md
 	@grep -Fq '$${HOME}/construction_side/<project>/' core/OPERATING.md
 
@@ -103,6 +105,8 @@ smoke-new-project:
 	grep -Fq 'start exactly `make release`' "$$tmp/.vibe/kernel/RELEASE.md"; \
 	grep -Fq '## Work mode' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'Operation and audit' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'named uncertainty' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'Stop for approval before crossing' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	test "$$(cat "$$tmp/.vibe/kernel/VERSION")" = "$$(cat VERSION)"; \
 	git -C "$$tmp" check-ignore -q .vibe/KERNEL_SOURCE; \
 	grep -q "Always read.*OPERATING.md" "$$tmp/AGENTS.md"; \

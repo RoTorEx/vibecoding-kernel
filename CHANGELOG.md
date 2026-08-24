@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Added a universal outcome-boundary contract that prevents silent scope
+  expansion across documented stages, priorities, deferred work, and non-goals.
+- Required reference gathering to start with the closest relevant source and
+  stop once enough evidence exists for a safe decision.
 
 ## [1.3.3] - 2026-08-22
 

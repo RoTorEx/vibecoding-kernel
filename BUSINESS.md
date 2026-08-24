@@ -30,6 +30,8 @@ parts are fast, sharp, and more effective than their size suggests.
   only after the project owner explicitly selects it.
 - **Work mode:** the task boundary between repository maintenance, operational
   execution, and read-only audit.
+- **Outcome boundary:** the smallest verifiable result authorized by the current
+  request and constrained by local truth.
 
 ## Business flow
 
@@ -73,6 +75,8 @@ parts are fast, sharp, and more effective than their size suggests.
   the project owner's explicit choice.
 - Operational execution never inherits the maintenance commit cycle, and an
   audit never silently becomes repair.
+- Work never silently expands beyond its authorized outcome, and research stops
+  when enough relevant evidence exists to make a safe decision.
 - A new or materially changed automated publisher gets the closest practical
   non-release preflight before its first pushed tag and authoritative read-back
   after publishing; unchanged recent success may serve as evidence.
@@ -95,6 +99,7 @@ parts are fast, sharp, and more effective than their size suggests.
 | 1 | canonical home per rule | State a rule once and route to it elsewhere | Duplicate wording drifts and makes agents resolve avoidable conflicts | Rule edits must repair the canonical source and its routes | parent review and bootstrap smoke |
 | 1 | maximum bootstrap question | Ask once for the user, problem, and useful outcome only when the first request is insufficient | Avoids both invented product truth and a context-heavy onboarding interview | New-project bootstrap changes | marker assertions in bootstrap smoke |
 | 3 | work modes | Maintenance, operation, and audit have distinct authority and completion contracts | Prevent operational agents from editing rails and maintainers from inheriting product-run machinery | Every task must select the mode implied by its requested outcome | copied runtime smoke and mode-contract assertions |
+| 1 | active outcome/task | Work has one explicit verifiable boundary at a time | Prevent helpful-looking additions and repeated research from displacing the requested result | Agents must stop for approval before crossing documented or user-defined boundaries | copied runtime scope assertions and final diff/result review |
 | 1 | disposable root | `${HOME}/construction_side` contains bulky reproducible scratch and build state | The owner can inspect or delete one obvious tree instead of hunting through hidden system paths | Child build and temporary-work paths must converge here when changed | copied runtime marker and child checks |
 
 ## Module map

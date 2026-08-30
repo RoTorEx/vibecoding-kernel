@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.3.5] - 2026-08-30
+
 ### Changed
 
 - Distinguished durable `ROADMAP.md` direction from the accepted executable

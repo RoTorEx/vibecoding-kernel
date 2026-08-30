@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Distinguished durable `ROADMAP.md` direction from the accepted executable
+  `TASK.md` queue, rejected ambiguous `TODO.md` files, and kept both planning
+  files absent from new projects until their separate horizons actually exist.
 
 ## [1.3.4] - 2026-08-24
 

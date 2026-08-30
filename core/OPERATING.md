@@ -15,23 +15,22 @@ These rules apply to normal work in every child project.
 Choose the mode from the requested outcome before acting:
 
 - **Maintenance** changes tracked repository code, rules, tests, or docs.
-- **Operation** uses the repository's tools and workflows to work on project,
-  user, or external state without changing the repository itself.
-- **Audit** inspects evidence and reports findings; it is read-only unless the
-  user explicitly requests repair.
+- **Operation** uses repository workflows on project, user, or external state without changing the repository itself.
+- **Audit** inspects evidence and reports findings; it is read-only unless the user explicitly requests repair.
 
-The same agent may use different modes in different tasks. Keep phases explicit
-in a mixed request and never silently expand one mode into another.
+The same agent may use different modes in different tasks. Keep phases explicit in mixed requests and never silently expand one mode into another.
 
 ## Context and scope
 
 - Read the root `AGENTS.md` and follow its task routing.
 - For product behavior, read `BUSINESS.md` and the relevant `business/*.md` module.
-- Start reference or example research with the closest relevant source; open more
-  only for a named uncertainty, and stop when evidence supports a safe decision.
+- Start reference or example research with the closest relevant source; open more only for a named uncertainty, and stop when evidence supports a safe decision.
 - Before acting, define the smallest verifiable outcome authorized by the request.
   Treat documented stages, priorities, deferred work, and non-goals as boundaries unless explicitly included.
   Stop for approval before crossing; useful-looking work must not displace the request, and the final result must stay inside.
+- Use `ROADMAP.md` only for durable product direction: ordered outcomes, entry conditions, and deliberate deferrals. It does not authorize implementation.
+- Use `TASK.md` only for accepted, executable work in queue order. Remove completed work and record shipped behavior in product truth or the changelog.
+- Keep both only when the two horizons coexist; omit empty planning files and do not use the ambiguous `TODO.md` name.
 
 ## Preserve user knowledge
 

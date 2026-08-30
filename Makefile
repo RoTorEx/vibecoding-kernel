@@ -37,6 +37,8 @@ check-layout:
 	@test ! -e docs
 	@test ! -e PROPOSALS.md
 	@test ! -e templates/project-skeleton/TASK.md
+	@test ! -e templates/project-skeleton/TODO.md
+	@test ! -e templates/project-skeleton/ROADMAP.md
 	@test ! -e templates/project-skeleton/.githooks
 	@for file in core/*.md; do name="$$(basename "$$file")"; grep -Fq "$$name" templates/kernel-routing.md || { echo "ERROR: $$name is not routed." >&2; exit 1; }; done
 	@grep -Fq '## Work mode' core/OPERATING.md
@@ -45,6 +47,9 @@ check-layout:
 	@grep -Fq 'Operation' core/OPERATING.md
 	@grep -Fq 'named uncertainty' core/OPERATING.md
 	@grep -Fq 'Stop for approval before crossing' core/OPERATING.md
+	@grep -Fq 'Use `ROADMAP.md` only for durable product direction' core/OPERATING.md
+	@grep -Fq 'Use `TASK.md` only for accepted, executable work' core/OPERATING.md
+	@grep -Fq 'do not use the ambiguous `TODO.md` name' core/OPERATING.md
 	@grep -Fq 'remove owned temporary artifacts' core/OPERATING.md
 	@grep -Fq '$${HOME}/construction_side/<project>/' core/OPERATING.md
 
@@ -107,6 +112,8 @@ smoke-new-project:
 	grep -Fq 'Operation and audit' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'named uncertainty' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'Stop for approval before crossing' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'Use `ROADMAP.md` only for durable product direction' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'Use `TASK.md` only for accepted, executable work' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	test "$$(cat "$$tmp/.vibe/kernel/VERSION")" = "$$(cat VERSION)"; \
 	git -C "$$tmp" check-ignore -q .vibe/KERNEL_SOURCE; \
 	grep -q "Always read.*OPERATING.md" "$$tmp/AGENTS.md"; \

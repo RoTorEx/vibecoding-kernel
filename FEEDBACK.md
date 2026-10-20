@@ -48,3 +48,15 @@ details that are unnecessary to evaluate the behavior.
 - Verification: Run codesign --verify --deep --strict on the install source and inspect its designated requirement, bundle identifier, and team identity; reinstall twice and confirm the existing TCC permission remains effective after relaunch.
 - Removal condition: Remove or narrow the rule if macOS stops binding these grants to code-signing requirements or the install workflow no longer replaces an app that uses TCC-managed permissions.
 - Status: `proposed`
+
+### 2026-09-06 — Preserve neighboring invariants during scoped changes
+
+- Source project: `docket`
+- Trigger: A task changes one stage of an established production workflow whose adjacent stages already have user-validated behavior or data ownership.
+- Proposed action: Before editing, identify the current end-to-end happy path and its neighboring invariants. After editing, compare the full workflow diff and run focused checks for those invariants. Treat any unrelated behavior change as a regression to remove or explicitly justify in product truth.
+- Reason: A locally plausible change can silently remove ordering, add a second decision authority, or insert new failure states into a previously working path. Unit success in the edited component does not show that the user's machine still works end to end.
+- Evidence: One production repair found a removed user-owned sort, four independently writable fields for one decision, network enrichment placed before durable storage, and an extra browser control page. Each arose while implementing narrower requested features; the component checks passed while the daily workflow regressed.
+- Scope and exceptions: Apply to maintenance and feature changes in an existing workflow with persisted data or user-validated behavior. Skip exhaustive end-to-end tracing for isolated new code that has no callers, stored state, or neighboring product contract.
+- Verification: The final review names the happy path and preserved invariants, shows no unexplained adjacent diff, and includes at least one focused real or retained strong check for each data-owning boundary touched.
+- Removal condition: Narrow or remove the rule if repeated audits show the normal task workflow already performs equivalent invariant mapping and end-to-end verification without regressions or added process burden.
+- Status: `proposed`

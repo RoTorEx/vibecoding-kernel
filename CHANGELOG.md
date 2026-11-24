@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Put application/platform and safety boundaries ahead of user and repository
+  instructions.
+- Kept read-only audits free of mandatory Git pulls and made commits and pushes
+  separate, explicitly requested actions instead of maintenance defaults.
+- Kept `make new-project` from staging or committing the generated foundation.
+- Made `vibe-pull` show adoption guidance whenever runtime content changes,
+  including a same-version update. A new Kernel release remains necessary before
+  distributing the changed operating contract to child projects.
 
 ## [1.3.5] - 2026-08-30
 

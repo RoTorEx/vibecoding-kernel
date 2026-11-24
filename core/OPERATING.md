@@ -4,8 +4,8 @@ These rules apply to normal work in every child project.
 
 ## Priority
 
-1. Current user instruction.
-2. Explicit safety and security boundaries.
+1. Application/platform rules and explicit safety and security boundaries.
+2. Current user instruction.
 3. Local business and product truth.
 4. These shared operating rules.
 5. General best practices.
@@ -60,22 +60,22 @@ as a side effect; hand reusable evidence to a later maintenance task.
 
 ## Repository maintenance cycle
 
-Use this cycle only when tracked repository state changes. Operation and audit
-tasks do not create repository commits unless the user separately requests a
-maintenance or repair phase.
+Use this cycle for authorized tracked changes. Operation and audit stay read-only;
+repository changes alone do not authorize a commit or push.
 
 1. Run `git status --short` before editing.
-2. If the worktree is clean and the current branch has an upstream, run
-   `git pull --ff-only`. If it is dirty, do not pull automatically.
+2. With a clean worktree and clear upstream, run `git fetch` and
+   `git pull --ff-only --no-rebase --no-autostash`; otherwise skip automatic pull.
 3. Preserve unrelated changes and make the smallest coherent authorized change.
 4. Run `make check`. If the project has executable code but no real
    `make check`, add one using the project's native tools.
 5. Update durable documentation and `CHANGELOG.md` when behavior changed.
 6. If the task produced reusable evidence about agent behavior or rules, follow
    the proposal loop in `EVOLUTION.md`.
-7. Commit the completed task as one atomic commit.
-8. Push the current tracked branch when it has an upstream, unless the user
-   said not to push.
+7. Leave the verified diff uncommitted unless the user explicitly requests a
+   commit. An authorized commit contains one completed task or coherent slice.
+8. Push only when the user separately requests it, after inspecting the outgoing
+   commits.
 9. Report the outcome and checks run.
 
 Do not commit or present incomplete, blocked, or failing work as completed.

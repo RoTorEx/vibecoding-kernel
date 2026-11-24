@@ -76,7 +76,9 @@ parts are fast, sharp, and more effective than their size suggests.
 - Recipes are never runtime defaults, automatically pulled, or applied without
   the project owner's explicit choice.
 - Operational execution never inherits the maintenance commit cycle, and an
-  audit never silently becomes repair.
+  audit never silently becomes repair or require a Git pull.
+- Commits and pushes are separate, explicitly authorized actions; maintenance
+  produces a verified reviewable diff by default.
 - Work never silently expands beyond its authorized outcome, and research stops
   when enough relevant evidence exists to make a safe decision.
 - Child planning uses `ROADMAP.md` for durable direction and `TASK.md` for an

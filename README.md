@@ -32,8 +32,9 @@ make new-project
 
 The command prompts for a target path. It creates a missing directory or fills
 an existing empty directory (an empty `.git` is allowed), initializes `main`,
-installs the operational foundation, and creates the exact first commit
-`Initial commit`. Product details belong in later task commits.
+and installs the operational foundation without staging or committing it.
+Review the resulting diff first. A later separately authorized first commit uses
+the exact subject `Initial commit`; product details belong in later task commits.
 
 On the first substantive task, the local agent uses the user's request to fill
 the short project purpose in `README.md` and `BUSINESS.md`. If the request is not

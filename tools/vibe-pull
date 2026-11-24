@@ -164,8 +164,8 @@ def main(argv: list[str]) -> int:
         print(f"Removed obsolete runtime entry: .vibe/kernel/{name}")
     if not changed and not removed:
         print("Already current.")
-    elif old_version != new_version:
-        print("Next: read .vibe/kernel/EVOLUTION.md adoption notes and apply relevant changes before committing.")
+    else:
+        print("Next: read .vibe/kernel/EVOLUTION.md adoption notes and apply relevant changes before finalizing the adoption.")
     return 0
 
 

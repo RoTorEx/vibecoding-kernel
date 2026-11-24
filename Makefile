@@ -42,7 +42,8 @@ check-layout:
 	@test ! -e templates/project-skeleton/.githooks
 	@for file in core/*.md; do name="$$(basename "$$file")"; grep -Fq "$$name" templates/kernel-routing.md || { echo "ERROR: $$name is not routed." >&2; exit 1; }; done
 	@grep -Fq '## Work mode' core/OPERATING.md
-	@grep -Fq 'Use this cycle only when tracked repository state changes.' core/OPERATING.md
+	@grep -Fq 'repository changes alone do not authorize a commit or push.' core/OPERATING.md
+	@grep -Fq 'Push only when the user separately requests it' core/OPERATING.md
 	@grep -Fq 'Audit' core/OPERATING.md
 	@grep -Fq 'Operation' core/OPERATING.md
 	@grep -Fq 'named uncertainty' core/OPERATING.md
@@ -84,9 +85,7 @@ new-project:
 	mkdir -p "$$target/.vibe"; \
 	printf "%s\n" "$(CURDIR)" > "$$target/.vibe/KERNEL_SOURCE"; \
 	python3 tools/vibe-pull "$$target"; \
-	git -C "$$target" add -A; \
-	git -C "$$target" commit -qm "Initial commit"; \
-	echo "Created $$target"
+	echo "Created $$target; review the uncommitted foundation"
 
 smoke-new-project:
 	@set -eu; \
@@ -94,11 +93,10 @@ smoke-new-project:
 	case "$$tmp" in /|"") echo "ERROR: unsafe temporary path." >&2; exit 1;; esac; \
 	trap 'rm -rf "$$tmp"' EXIT INT TERM; \
 	git -C "$$tmp" init -q; \
-	GIT_AUTHOR_NAME=smoke GIT_AUTHOR_EMAIL=smoke@example.invalid GIT_COMMITTER_NAME=smoke GIT_COMMITTER_EMAIL=smoke@example.invalid \
-		$(MAKE) new-project TARGET="$$tmp" NAME=stage-one-smoke >/dev/null; \
+	$(MAKE) new-project TARGET="$$tmp" NAME=stage-one-smoke >/dev/null; \
 	test "$$(git -C "$$tmp" branch --show-current)" = "main"; \
-	test "$$(git -C "$$tmp" log -1 --format=%s)" = "Initial commit"; \
-	test "$$(git -C "$$tmp" rev-list --count HEAD)" = "1"; \
+	! git -C "$$tmp" rev-parse --verify HEAD >/dev/null 2>&1; \
+	test -z "$$(git -C "$$tmp" ls-files)"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_REQUIRED' "$$tmp/README.md"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_REQUIRED' "$$tmp/BUSINESS.md"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_BOOTSTRAP_START' "$$tmp/AGENTS.md"; \
@@ -141,8 +139,9 @@ smoke-new-project:
 	cp templates/kernel-make.mk "$$fake/templates/kernel-make.mk"; \
 	cp tools/vibe-pull "$$fake/tools/vibe-pull"; \
 	printf "# Future Contract\n" > "$$fake/core/FUTURE.md"; \
-	python3 "$$fake/tools/vibe-pull" "$$tmp" >/dev/null; \
+	python3 "$$fake/tools/vibe-pull" "$$tmp" > "$$tmp/same-version-pull.out"; \
 	test -f "$$tmp/.vibe/kernel/FUTURE.md"; \
+	grep -Fq 'EVOLUTION.md adoption notes' "$$tmp/same-version-pull.out"; \
 	legacy="$$tmp/legacy-project"; \
 	mkdir -p "$$legacy"; \
 	cp templates/project-skeleton/AGENTS.md "$$legacy/AGENTS.md"; \
@@ -156,10 +155,10 @@ smoke-new-project:
 	python3 tools/vibe-pull "$$legacy" >/dev/null; \
 	cmp "$$legacy/Makefile.after-first-pull" "$$legacy/Makefile"; \
 	fresh="$$tmp/fresh-project"; \
-	GIT_AUTHOR_NAME=smoke GIT_AUTHOR_EMAIL=smoke@example.invalid GIT_COMMITTER_NAME=smoke GIT_COMMITTER_EMAIL=smoke@example.invalid \
-		$(MAKE) new-project TARGET="$$fresh" NAME=fresh-project >/dev/null; \
+	$(MAKE) new-project TARGET="$$fresh" NAME=fresh-project >/dev/null; \
 	test "$$(git -C "$$fresh" branch --show-current)" = "main"; \
-	test "$$(git -C "$$fresh" log -1 --format=%s)" = "Initial commit"; \
+	! git -C "$$fresh" rev-parse --verify HEAD >/dev/null 2>&1; \
+	test -z "$$(git -C "$$fresh" ls-files)"; \
 	echo "OK"
 
 smoke-propose:

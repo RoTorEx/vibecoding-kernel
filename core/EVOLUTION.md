@@ -109,8 +109,8 @@ remove a rule.
   below before continuing work.
 - Apply safe, relevant local instruction or documentation repairs in the same
   task. Do not invent product decisions or perform unrelated migrations.
-- Commit the pulled kernel diff and any required local adoption as one explicit
-  maintenance task.
+- Keep the pulled kernel diff and required local adoption in one maintenance
+  task. Commit only when the user explicitly requests it.
 
 ## 6. Re-evaluate rules
 

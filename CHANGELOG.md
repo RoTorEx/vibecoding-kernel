@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.3.6] - 2026-11-24
+
 ### Changed
 
 - Put application/platform and safety boundaries ahead of user and repository

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+
+## [1.3.7] - 2026-11-25
+
 ### Changed
 
 - Commit verified maintenance locally and require authorization for Git delivery.

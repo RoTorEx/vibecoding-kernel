@@ -42,8 +42,8 @@ check-layout:
 	@test ! -e templates/project-skeleton/.githooks
 	@for file in core/*.md; do name="$$(basename "$$file")"; grep -Fq "$$name" templates/kernel-routing.md || { echo "ERROR: $$name is not routed." >&2; exit 1; }; done
 	@grep -Fq '## Work mode' core/OPERATING.md
-	@grep -Fq 'repository changes alone do not authorize a commit or push.' core/OPERATING.md
-	@grep -Fq 'Push only when the user separately requests it' core/OPERATING.md
+	@grep -Fq 'in local Git.' core/OPERATING.md
+	@grep -Fq 'Push only with authorization for the destination and scope' core/OPERATING.md
 	@grep -Fq 'Audit' core/OPERATING.md
 	@grep -Fq 'Operation' core/OPERATING.md
 	@grep -Fq 'named uncertainty' core/OPERATING.md
@@ -64,39 +64,40 @@ new-project:
 	if [ -z "$$target" ]; then printf "Target path: "; read -r target; fi; \
 	if [ -z "$$target" ]; then echo "ERROR: target path is required." >&2; exit 1; fi; \
 	if [ -z "$$name" ]; then trimmed="$${target%/}"; name="$$(basename "$$trimmed")"; fi; \
-	if [ -d "$$target" ]; then \
-		if [ -n "$$(find "$$target" -mindepth 1 -maxdepth 1 ! -name .git -print -quit)" ]; then \
-			echo "ERROR: target must be empty except for .git: $$target" >&2; exit 1; \
-		fi; \
-		if [ -e "$$target/.git" ]; then \
-			git -C "$$target" rev-parse --git-dir >/dev/null 2>&1 || { echo "ERROR: target contains an invalid .git: $$target" >&2; exit 1; }; \
-			! git -C "$$target" rev-parse --verify HEAD >/dev/null 2>&1 || { echo "ERROR: target Git repository already has commits: $$target" >&2; exit 1; }; \
-		fi; \
-		cp -R templates/project-skeleton/. "$$target"; \
-	else \
-		cp -R templates/project-skeleton "$$target"; \
-	fi; \
-	if [ -e "$$target/.git" ]; then \
-		git -C "$$target" symbolic-ref HEAD refs/heads/main; \
-	else \
-		git -C "$$target" init -q -b main; \
-	fi; \
-	python3 -c "from pathlib import Path; import sys; p=Path(sys.argv[1])/'README.md'; p.write_text(p.read_text().replace('TODO_PROJECT_NAME', sys.argv[2], 1))" "$$target" "$$name"; \
-	mkdir -p "$$target/.vibe"; \
-	printf "%s\n" "$(CURDIR)" > "$$target/.vibe/KERNEL_SOURCE"; \
-	python3 tools/vibe-pull "$$target"; \
-	echo "Created $$target; review the uncommitted foundation"
+	python3 tools/vibe-pull --new-project="$$name" -- "$$target"
 
 smoke-new-project:
 	@set -eu; \
-	tmp="$$(mktemp -d "$${TMPDIR:-/tmp}/vibe-stage1.XXXXXX")"; \
-	case "$$tmp" in /|"") echo "ERROR: unsafe temporary path." >&2; exit 1;; esac; \
-	trap 'rm -rf "$$tmp"' EXIT INT TERM; \
+	test_root="$$(mktemp -d "$${TMPDIR:-/tmp}/vibe-stage1.XXXXXX")"; \
+	case "$$test_root" in /|"") echo "ERROR: unsafe temporary path." >&2; exit 1;; esac; \
+	trap 'rm -rf "$$test_root"' EXIT INT TERM; \
+	export GIT_AUTHOR_NAME=smoke GIT_AUTHOR_EMAIL=smoke@example.invalid GIT_COMMITTER_NAME=smoke GIT_COMMITTER_EMAIL=smoke@example.invalid; \
+	export GIT_CONFIG_COUNT=3 GIT_CONFIG_KEY_0=commit.gpgsign GIT_CONFIG_VALUE_0=false \
+		GIT_CONFIG_KEY_1=tag.gpgsign GIT_CONFIG_VALUE_1=false GIT_CONFIG_KEY_2=core.hooksPath GIT_CONFIG_VALUE_2=/dev/null; \
+	kernel="$$test_root/kernel"; \
+	tmp="$$test_root/initial"; \
+	mkdir -p "$$kernel/tools" "$$tmp"; \
+	cp Makefile VERSION "$$kernel/"; \
+	cp -R core templates "$$kernel/"; \
+	cp tools/vibe-pull "$$kernel/tools/"; \
+	git -C "$$kernel" init -q -b main; \
+	git -C "$$kernel" add -- Makefile VERSION core templates tools/vibe-pull; \
+	git -C "$$kernel" commit -qm 'Fixture release'; \
+	tag="v$$(cat VERSION)"; \
+	git -C "$$kernel" tag "$$tag"; \
+	printf '99.99.99\n' > "$$kernel/VERSION"; \
+	printf '# Unreleased changes\n' > "$$kernel/core/OPERATING.md"; \
+	printf '# Future contract\n' > "$$kernel/core/FUTURE.md"; \
+	printf '# Unreleased scaffold\n' > "$$kernel/templates/project-skeleton/README.md"; \
 	git -C "$$tmp" init -q; \
-	$(MAKE) new-project TARGET="$$tmp" NAME=stage-one-smoke >/dev/null; \
+	$(MAKE) -C "$$kernel" new-project TARGET="$$tmp" NAME=stage-one-smoke >/dev/null; \
 	test "$$(git -C "$$tmp" branch --show-current)" = "main"; \
-	! git -C "$$tmp" rev-parse --verify HEAD >/dev/null 2>&1; \
-	test -z "$$(git -C "$$tmp" ls-files)"; \
+	test "$$(git -C "$$tmp" log -1 --format=%s)" = "Initial commit"; \
+	test "$$(git -C "$$tmp" rev-list --count HEAD)" = "1"; \
+	test -z "$$(git -C "$$tmp" status --porcelain)"; \
+	cmp core/OPERATING.md "$$tmp/.vibe/kernel/OPERATING.md"; \
+	test ! -e "$$tmp/.vibe/kernel/FUTURE.md"; \
+	grep -Fq '# stage-one-smoke' "$$tmp/README.md"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_REQUIRED' "$$tmp/README.md"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_REQUIRED' "$$tmp/BUSINESS.md"; \
 	grep -Fq 'VIBE:PROJECT_BRIEF_BOOTSTRAP_START' "$$tmp/AGENTS.md"; \
@@ -107,7 +108,7 @@ smoke-new-project:
 	test -f "$$tmp/.vibe/kernel/EVOLUTION.md"; \
 	grep -Fq 'start exactly `make release`' "$$tmp/.vibe/kernel/RELEASE.md"; \
 	grep -Fq '## Work mode' "$$tmp/.vibe/kernel/OPERATING.md"; \
-	grep -Fq 'Operation and audit' "$$tmp/.vibe/kernel/OPERATING.md"; \
+	grep -Fq 'Audits stay read-only.' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'named uncertainty' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'Stop for approval before crossing' "$$tmp/.vibe/kernel/OPERATING.md"; \
 	grep -Fq 'Use `ROADMAP.md` only for durable product direction' "$$tmp/.vibe/kernel/OPERATING.md"; \
@@ -122,7 +123,10 @@ smoke-new-project:
 	mkdir -p "$$tmp/.vibe/kernel/examples"; \
 	printf "obsolete\n" > "$$tmp/.vibe/kernel/LEGACY.md"; \
 	printf "obsolete\n" > "$$tmp/.vibe/kernel/examples/OLD.md"; \
+	printf 'old content\n' > "$$tmp/.vibe/kernel/OPERATING.md"; \
 	(cd "$$tmp" && make vibe-pull >/dev/null); \
+	cmp core/OPERATING.md "$$tmp/.vibe/kernel/OPERATING.md"; \
+	test ! -e "$$tmp/.vibe/kernel/FUTURE.md"; \
 	grep -q "Durable local fact" "$$tmp/BUSINESS.md"; \
 	grep -Fq 'local-command:' "$$tmp/Makefile"; \
 	test "$$(grep -Fc '# VIBE:KERNEL_MAKE_START' "$$tmp/Makefile")" = "1"; \
@@ -131,34 +135,36 @@ smoke-new-project:
 	count="$$(find "$$tmp/.vibe/kernel" -maxdepth 1 -type f | wc -l | tr -d ' ')"; \
 	expected="$$(find core -maxdepth 1 -type f -name '*.md' | wc -l | tr -d ' ')"; \
 	test "$$count" = "$$((expected + 1))"; \
-	fake="$$tmp/fake-kernel"; \
-	mkdir -p "$$fake/core" "$$fake/templates" "$$fake/tools"; \
-	cp core/*.md "$$fake/core/"; \
-	cp VERSION "$$fake/VERSION"; \
-	cp templates/kernel-routing.md "$$fake/templates/kernel-routing.md"; \
-	cp templates/kernel-make.mk "$$fake/templates/kernel-make.mk"; \
-	cp tools/vibe-pull "$$fake/tools/vibe-pull"; \
-	printf "# Future Contract\n" > "$$fake/core/FUTURE.md"; \
-	python3 "$$fake/tools/vibe-pull" "$$tmp" > "$$tmp/same-version-pull.out"; \
-	test -f "$$tmp/.vibe/kernel/FUTURE.md"; \
-	grep -Fq 'EVOLUTION.md adoption notes' "$$tmp/same-version-pull.out"; \
-	legacy="$$tmp/legacy-project"; \
+	legacy="$$test_root/legacy-project"; \
 	mkdir -p "$$legacy"; \
 	cp templates/project-skeleton/AGENTS.md "$$legacy/AGENTS.md"; \
 	printf 'check:\n\t@true  \n# exact local tail  ' > "$$legacy/Makefile"; \
 	cp "$$legacy/Makefile" "$$legacy/Makefile.before"; \
-	python3 tools/vibe-pull "$$legacy" >/dev/null; \
+	python3 "$$kernel/tools/vibe-pull" "$$legacy" >/dev/null; \
 	python3 -c "from pathlib import Path; import sys; before=Path(sys.argv[1]).read_bytes(); after=Path(sys.argv[2]).read_bytes(); assert after.startswith(before + b'\\n\\n# VIBE:KERNEL_MAKE_START\\n')" "$$legacy/Makefile.before" "$$legacy/Makefile"; \
 	grep -Fq 'check:' "$$legacy/Makefile"; \
 	grep -Fq 'vibe-propose:' "$$legacy/Makefile"; \
 	cp "$$legacy/Makefile" "$$legacy/Makefile.after-first-pull"; \
-	python3 tools/vibe-pull "$$legacy" >/dev/null; \
+	python3 "$$kernel/tools/vibe-pull" "$$legacy" >/dev/null; \
 	cmp "$$legacy/Makefile.after-first-pull" "$$legacy/Makefile"; \
-	fresh="$$tmp/fresh-project"; \
-	$(MAKE) new-project TARGET="$$fresh" NAME=fresh-project >/dev/null; \
+	fresh="$$test_root/fresh-project"; \
+	$(MAKE) -C "$$kernel" new-project TARGET="$$fresh" NAME=fresh-project >/dev/null; \
 	test "$$(git -C "$$fresh" branch --show-current)" = "main"; \
-	! git -C "$$fresh" rev-parse --verify HEAD >/dev/null 2>&1; \
-	test -z "$$(git -C "$$fresh" ls-files)"; \
+	test "$$(git -C "$$fresh" log -1 --format=%s)" = "Initial commit"; \
+	test -z "$$(git -C "$$fresh" status --porcelain)"; \
+	staged="$$test_root/staged-project"; \
+	git init -q "$$staged"; \
+	printf 'keep\n' > "$$staged/keep.txt"; \
+	git -C "$$staged" add -- keep.txt; \
+	rm "$$staged/keep.txt"; \
+	! python3 "$$kernel/tools/vibe-pull" --new-project=staged-project "$$staged" > "$$test_root/staged.out" 2>&1; \
+	grep -Fq 'Git index must be empty' "$$test_root/staged.out"; \
+	test ! -e "$$staged/README.md"; \
+	test "$$(git -C "$$staged" ls-files)" = "keep.txt"; \
+	git -C "$$kernel" tag -d "$$tag" >/dev/null; \
+	! (cd "$$fresh" && make vibe-pull > "$$test_root/missing-tag.out" 2>&1); \
+	grep -Fq "Kernel release $$tag is missing" "$$test_root/missing-tag.out"; \
+	test -z "$$(git -C "$$fresh" status --porcelain)"; \
 	echo "OK"
 
 smoke-propose:

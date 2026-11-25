@@ -60,8 +60,7 @@ as a side effect; hand reusable evidence to a later maintenance task.
 
 ## Repository maintenance cycle
 
-Use this cycle for authorized tracked changes. Operation and audit stay read-only;
-repository changes alone do not authorize a commit or push.
+Use this cycle for authorized tracked changes. Audits stay read-only.
 
 1. Run `git status --short` before editing.
 2. With a clean worktree and clear upstream, run `git fetch` and
@@ -72,10 +71,10 @@ repository changes alone do not authorize a commit or push.
 5. Update durable documentation and `CHANGELOG.md` when behavior changed.
 6. If the task produced reusable evidence about agent behavior or rules, follow
    the proposal loop in `EVOLUTION.md`.
-7. Leave the verified diff uncommitted unless the user explicitly requests a
-   commit. An authorized commit contains one completed task or coherent slice.
-8. Push only when the user separately requests it, after inspecting the outgoing
-   commits.
+7. Commit each completed, verified task or coherent slice in local Git.
+8. Push only with authorization for the destination and scope after inspecting
+   all outgoing commits. An invoked workflow may cover its documented delivery.
+   For a GitHub remote, you may offer to push after committing if authorization is pending.
 9. Report the outcome and checks run.
 
 Do not commit or present incomplete, blocked, or failing work as completed.

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Commit verified maintenance locally and require authorization for Git delivery.
+- Create a single `Initial commit` when bootstrapping an empty project.
+- Install the version, runtime and managed templates from one tagged release.
 
 ## [1.3.6] - 2026-11-24
 

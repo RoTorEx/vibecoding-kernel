@@ -103,14 +103,14 @@ remove a rule.
 ## 5. Release, pull, and adopt
 
 - Shared rule changes are distributed only through a released kernel version.
-- `make vibe-pull` copies every current `core/*.md`, the kernel `VERSION`, and
-  managed routing; it removes obsolete managed runtime files.
+- `make vibe-pull` copies `core/*.md`, `VERSION` and the managed templates from
+  one local release tag. It removes obsolete managed runtime files.
 - After a version change, read the changed kernel files and the adoption notes
   below before continuing work.
 - Apply safe, relevant local instruction or documentation repairs in the same
   task. Do not invent product decisions or perform unrelated migrations.
-- Keep the pulled kernel diff and required local adoption in one maintenance
-  task. Commit only when the user explicitly requests it.
+- Verify and commit the pulled kernel diff and required local adoption together
+  as one maintenance task.
 
 ## 6. Re-evaluate rules
 

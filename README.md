@@ -31,10 +31,10 @@ make new-project
 ```
 
 The command prompts for a target path. It creates a missing directory or fills
-an existing empty directory (an empty `.git` is allowed), initializes `main`,
-and installs the operational foundation without staging or committing it.
-Review the resulting diff first. A later separately authorized first commit uses
-the exact subject `Initial commit`; product details belong in later task commits.
+an existing empty directory, verifies Git identity, initializes `main`, and
+installs and commits the operational foundation as `Initial commit`. An existing
+Git repository must be unborn with an empty index. Product details belong in
+later task commits.
 
 On the first substantive task, the local agent uses the user's request to fill
 the short project purpose in `README.md` and `BUSINESS.md`. If the request is not
@@ -48,9 +48,8 @@ For automation, the same command accepts explicit values:
 make new-project TARGET=/absolute/path/to/project NAME=project-name
 ```
 
-The target must be new or empty except for `.git`. The command copies the
-minimal skeleton, records this kernel path in `.vibe/KERNEL_SOURCE`, and pulls
-the current operating files.
+Bootstrap uses the skeleton and operating files from the same Kernel release
+tag. It records the source path in the ignored `.vibe/KERNEL_SOURCE` file.
 
 ## Update a child
 
@@ -66,8 +65,10 @@ block in `Makefile`. It never changes business documentation, source code,
 README, changelog, or project-owned commands. Content outside managed markers
 is preserved byte for byte.
 
-Every `core/*.md` file is discovered automatically, so future conditional
-kernel contracts reach children without changing the sync implementation.
+The source checkout's committed `VERSION` selects the local tag `v<VERSION>`.
+The version label, all `core/*.md` files and managed templates come from that
+tag. Worktree edits take effect for children after a new release. If the tag is
+missing, update the source checkout and its tags before running the command.
 
 ## Optional recipes
 

@@ -37,8 +37,8 @@ parts are fast, sharp, and more effective than their size suggests.
 
 ## Business flow
 
-1. Bootstrap creates the smallest useful child skeleton.
-2. The child records the local kernel path and pulls a versioned runtime copy.
+1. Bootstrap installs the smallest useful skeleton and runtime from one release.
+2. It records the local kernel path and commits the foundation on `main`.
 3. Agents read the local copy, not the parent repository.
 4. User explanations and corrections are preserved in local truth during the
    same task.
@@ -53,6 +53,7 @@ parts are fast, sharp, and more effective than their size suggests.
   project-owned commands, source code, tests, or other local truth; content
   outside managed markers is preserved byte for byte.
 - `.vibe/kernel/` contains only the current managed runtime.
+- The runtime version and all managed content come from the same release commit.
 - Product-specific behavior never enters the shared runtime.
 - Machine-specific paths and integrations stay in ignored local configuration,
   never in committed shared instructions.
